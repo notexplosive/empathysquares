@@ -5,12 +5,15 @@ Box.list = {}
 function Box:create(x,y)
   box = {}
   setmetatable(box,Box)
-  box.width = 64
-  box.height = 64
+  box.width  = 96
+  box.height = 96
   box.x = 0
   box.y = 0
   box.hover = false
   box.color = {120,200,120,255}
+
+  box.animTick = .1 * (math.random()+1)
+  box.animTrigger = false
 
   if x ~= nil then
     box.x = x
@@ -25,7 +28,7 @@ function Box:create(x,y)
 end
 
 function Box:realPosition()
-  return self.x*80+46,self.y*80+46
+  return self.x*100+46,self.y*100+2
 end
 
 function Box:getHover()
@@ -41,24 +44,37 @@ end
 
 function Box:update()
   self.hover = self:getHover()
+
+  if not self.animTrigger then
+    self.animTrigger = (math.random() > .9)
+  end
 end
 
 function Box:draw()
   local x,y = self:realPosition()
   local r,g,b,a = love.graphics.getColor()
+
+  if self.animTick < 1 then
+    if self.animTrigger then
+      self.animTick = self.animTick * 1.05
+    end
+  else
+    self.animTick = 1
+  end
+
   if self.color ~= nil then
     love.graphics.setColor(unpack(self.color))
   end
 
-  if self.hover then
+  if self.hover and self.animTick == 1 then
     love.graphics.setColor(15,160,15,255)
     love.graphics.rectangle('fill',x,y,self.width,self.height)
     love.graphics.setColor(255,255,255,255)
     love.graphics.rectangle('line',x,y,self.width,self.height)
   else
-    love.graphics.rectangle('fill',x,y,self.width,self.height)
+    love.graphics.rectangle('fill',x*self.animTick,y,self.width*self.animTick,self.height)
     love.graphics.setColor(15,15,255,255)
-    love.graphics.rectangle('line',x,y,self.width,self.height)
+    love.graphics.rectangle('line',x*self.animTick,y,self.width*self.animTick,self.height)
   end
   love.graphics.setColor(r,g,b,a)
 end
