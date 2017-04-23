@@ -3,20 +3,14 @@ require "angle"
 Polygon = {}
 Polygon.__index = Polygon
 
-function Polygon.create(self,center,vertecies)
+function Polygon.create(self)
   local polygon = {}
   setmetatable(polygon,Polygon)
   polygon.center = {300,300}
-  polygon.vertecies = {100, 100, 200, 100, 150, 200, 50, 50}
+  polygon.vertecies = {100, 100, 200, 100, 150, 200, 50, 50, 150, 50}
   polygon.angle = 0
 
-  if center ~= nil then
-    polygon.center = center
-  end
-
-  if vertecies ~= nil then
-    polygon.vertecies = {unpack(vertecies)}
-  end
+  polygon:rotate(.0001)
 
   return polygon
 end
@@ -24,7 +18,6 @@ end
 function Polygon:points()
     local tbl = {unpack(self.vertecies)}
     local avgPoint = self:avgPoint()
-
     for i=1,#tbl,2 do
       tbl[i] = tbl[i] + self.center[i%2] - avgPoint.x
       tbl[i+1] = tbl[i+1] + self.center[i%2+1] - avgPoint.y
@@ -50,9 +43,9 @@ function Polygon:draw()
   local r,g,b,a = love.graphics.getColor()
   love.graphics.setColor(255,255,0,255)
   if self:getHover() then
-    love.graphics.polygon('fill', polygon:points())
+    love.graphics.polygon('fill', self:points())
   else
-    love.graphics.polygon('line', polygon:points())
+    love.graphics.polygon('line', self:points())
   end
   love.graphics.setColor(r,g,b,a)
 end

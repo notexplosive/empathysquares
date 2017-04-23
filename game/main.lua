@@ -1,27 +1,59 @@
 require "box"
+require "cursor"
 
-count = 0
+function startGame()
+  if not gameStarted then
+    for x=0,6 do
+      for y=0,5 do
+        Box:create(x,y)
+      end
+    end
 
-for x=0,6 do
-  for y=0,5 do
-    Box:create(x,y)
-    count = count + 1
+    Box.list[10].color = {255,0,0,255}
+    Box.list[35].color = {255,0,0,255}
+
+    Box.list[10]:changeImage("angry.png")
+    Box.list[35]:changeImage("angry.png")
+    gameStarted = true;
   end
 end
 
-Box.list[10].color = {255,0,0,255}
-Box.list[35].color = {255,0,0,255}
-
-print(count .. " total boxes")
-
 function love.draw()
+  if not gameStarted then
+
+    love.graphics.print("press space to begin",350,200)
+    local img = love.graphics.newImage("happy.png")
+    love.graphics.draw(img,200,200)
+  end
   for i = 1,#Box.list do
     Box.list[i]:draw()
   end
 end
 
 function love.update()
+  cursorUpdate()
+
+  if love.keyboard.isDown('space') then
+    startGame()
+  end
+
+
+  local currentlyVisibleImages = {}
   for i = 1,#Box.list do
     Box.list[i]:update()
+    if Box.list[i].active and Box.list[i].showImage then
+      currentlyVisibleImages[#currentlyVisibleImages+1] = Box.list[i]
+    end
+
+    if #currentlyVisibleImages == 2 then
+      -- move the destruction countdown into this loop
+      -- this way we can adapt it to re-hide two non-matching cards
+      if currentlyVisibleImages[1].name == currentlyVisibleImages[2].name then
+        currentlyVisibleImages[1]:destroy();
+        currentlyVisibleImages[2]:destroy();
+      end
+    end
   end
+
+  print(#currentlyVisibleImages .. " currently visible images")
 end

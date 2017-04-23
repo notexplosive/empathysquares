@@ -11,6 +11,10 @@ function Box:create(x,y)
   box.y = 0
   box.hover = false
   box.color = {120,200,120,255}
+  box.active = true;
+  box.showImage = false;
+  box.name = "happy.png"
+  box.image = love.graphics.newImage(box.name)
 
   box.animTick = .1 * (math.random()+1)
   box.animTrigger = false
@@ -25,6 +29,11 @@ function Box:create(x,y)
   Box.list[#Box.list+1] = box
 
   return box
+end
+
+function Box:changeImage(str)
+  self.name = str;
+  self.image = love.graphics.newImage(self.name)
 end
 
 function Box:realPosition()
@@ -43,10 +52,34 @@ function Box:setPosition(x,y)
 end
 
 function Box:update()
-  self.hover = self:getHover()
+  if self.active then
+    self.hover = self:getHover()
 
-  if not self.animTrigger then
-    self.animTrigger = (math.random() > .9)
+    if self.hover and mouseClick() then
+      self.showImage = true;
+    end
+
+    if not self.animTrigger then
+      self.animTrigger = (math.random() > .9)
+    end
+
+    if self.flagToDestroy then
+      if self.destroyTick > 0 then
+        self.destroyTick = self.destroyTick - 1
+        DISABLE_CLICK = true;
+      else
+        self.active = false;
+        DISABLE_CLICK = false;
+      end
+    end
+  end
+end
+
+function Box:destroy()
+  if self.flagToDestroy == nil then
+    self.flagToDestroy = true
+    self.destroyTick = 60
+    --self.active = false
   end
 end
 
@@ -66,15 +99,22 @@ function Box:draw()
     love.graphics.setColor(unpack(self.color))
   end
 
-  if self.hover and self.animTick == 1 then
-    love.graphics.setColor(15,160,15,255)
-    love.graphics.rectangle('fill',x,y,self.width,self.height)
-    love.graphics.setColor(255,255,255,255)
-    love.graphics.rectangle('line',x,y,self.width,self.height)
-  else
-    love.graphics.rectangle('fill',x*self.animTick,y,self.width*self.animTick,self.height)
-    love.graphics.setColor(15,15,255,255)
-    love.graphics.rectangle('line',x*self.animTick,y,self.width*self.animTick,self.height)
+  if self.active then
+    if self.showImage then
+      love.graphics.setColor(255,255,255,255)
+      love.graphics.draw(self.image,x,y)
+    else
+      if self.hover and self.animTick == 1 then
+        love.graphics.setColor(15,160,15,255)
+        love.graphics.rectangle('fill',x,y,self.width,self.height)
+        love.graphics.setColor(255,255,255,255)
+        love.graphics.rectangle('line',x,y,self.width,self.height)
+      else
+        love.graphics.rectangle('fill',x*self.animTick,y,self.width*self.animTick,self.height)
+        love.graphics.setColor(15,15,255,255)
+        love.graphics.rectangle('line',x*self.animTick,y,self.width*self.animTick,self.height)
+      end
+    end
   end
   love.graphics.setColor(r,g,b,a)
 end
