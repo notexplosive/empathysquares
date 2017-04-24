@@ -5,12 +5,12 @@ function startGame()
   if not gameStarted then
     for x=0,6 do
       for y=0,5 do
-        Box:create(x,y)
+        local b = Box:create(x,y)
+        b.color[1] = 20*x + 20
+        b.color[2] = 20*y + 20
+        b.color[3] = x+y
       end
     end
-
-    Box.list[10].color = {255,0,0,255}
-    Box.list[35].color = {255,0,0,255}
 
     Box.list[10]:changeImage("angry.png")
     Box.list[35]:changeImage("angry.png")
