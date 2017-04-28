@@ -53,7 +53,7 @@ end
 
 function Box:update()
   if self.active then
-    self.hover = self:getHover()
+    self.hover = self:getHover() and not DISABLE_CLICK
 
     if self.hover and mouseClick() then
       self.showImage = true;
@@ -62,25 +62,11 @@ function Box:update()
     if not self.animTrigger then
       self.animTrigger = (math.random() > .9)
     end
-
-    if self.flagToDestroy then
-      if self.destroyTick > 0 then
-        self.destroyTick = self.destroyTick - 1
-        DISABLE_CLICK = true;
-      else
-        self.active = false;
-        DISABLE_CLICK = false;
-      end
-    end
   end
 end
 
 function Box:destroy()
-  if self.flagToDestroy == nil then
-    self.flagToDestroy = true
-    self.destroyTick = 60
-    --self.active = false
-  end
+  self.active = false;
 end
 
 function Box:draw()
@@ -110,9 +96,9 @@ function Box:draw()
         love.graphics.setColor(255,255,255,255)
         love.graphics.rectangle('line',x,y,self.width,self.height)
       else
-        love.graphics.rectangle('fill',x*self.animTick,y,self.width*self.animTick,self.height)
+        love.graphics.rectangle('fill',x*self.animTick,y*self.animTick,self.width,self.height)
         love.graphics.setColor(15,15,255,255)
-        love.graphics.rectangle('line',x*self.animTick,y,self.width*self.animTick,self.height)
+        love.graphics.rectangle('line',x*self.animTick,y*self.animTick,self.width,self.height)
       end
     end
   end

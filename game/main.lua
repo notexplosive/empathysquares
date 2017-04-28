@@ -1,6 +1,10 @@
 require "box"
 require "cursor"
 
+local haltInputTimer = 0;
+local evaluateFlag = false;
+local popText = ""
+
 function startGame()
   if not gameStarted then
     for x=0,6 do
@@ -28,15 +32,23 @@ function love.draw()
   for i = 1,#Box.list do
     Box.list[i]:draw()
   end
+
+  love.graphics.print(popText,200,200)
 end
 
 function love.update()
   cursorUpdate()
 
+  if haltInputTimer > 0 then
+    haltInputTimer = haltInputTimer - 1
+    DISABLE_CLICK = true;
+  else
+    DISABLE_CLICK = false;
+  end
+
   if love.keyboard.isDown('space') then
     startGame()
   end
-
 
   local currentlyVisibleImages = {}
   for i = 1,#Box.list do
@@ -46,14 +58,35 @@ function love.update()
     end
 
     if #currentlyVisibleImages == 2 then
-      -- move the destruction countdown into this loop
-      -- this way we can adapt it to re-hide two non-matching cards
-      if currentlyVisibleImages[1].name == currentlyVisibleImages[2].name then
-        currentlyVisibleImages[1]:destroy();
-        currentlyVisibleImages[2]:destroy();
+      if haltInputTimer == 0 then
+        if not evaluateFlag then
+          haltInputTimer = 60
+          evaluateFlag = true
+        end
       end
+
+      if haltInputTimer == 0 then
+        if evaluateFlag then
+          local img1 = currentlyVisibleImages[1]
+          local img2 = currentlyVisibleImages[2]
+
+          if img1.name == img2.name then
+            img1:destroy()
+            img2:destroy()
+            popText = img1.name;
+          else
+            img1.showImage = false;
+            img2.showImage = false;
+          end
+
+          currentlyVisibleImages = {}
+          evaluateFlag = false;
+        end
+      end
+
     end
   end
 
-  print(#currentlyVisibleImages .. " currently visible images")
+  print(evaluateFlag)
+  --print(#currentlyVisibleImages .. " currently visible images")
 end
