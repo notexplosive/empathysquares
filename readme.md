@@ -7,3 +7,9 @@
 * Randomly place tiles
 * Scoring
 * Make PopText better
+
+## By person ##
+* Nguyen -- look into shrinking dynamically
+* Quinn -- Figure out our scoring scheme
+* Ryan -- Output handling
+* Wyatt -- Tile placing
