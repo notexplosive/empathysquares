@@ -63,6 +63,7 @@ end
 function Box:changeImage(str)
   self.name = str;
   self.image = love.graphics.newImage("images/"..self.name.."/1.png")
+              -- TODO: instead of /1.png, this should pull a random image from the folder
 end
 
 -- translates the x and y to the actual pixel position in the window

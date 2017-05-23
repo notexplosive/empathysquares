@@ -37,6 +37,34 @@ function startGame()
         b.animTick = 1 - (x+y)*.15
       end
     end
+
+    local numberMarked = 0
+    for i=1,#Box.list/2 do
+      local emotion = emotionNames[ i % (#emotionNames) + 1 ]
+      numberMarked = numberMarked + 1
+
+      local t1 = i
+      local t2 = 1
+
+      while Box.list[t1].marked do
+        t1 = t1 + 1
+      end
+
+      while (Box.list[t2].marked or t1 == t2) do
+        t2 = math.random(#Box.list)
+      end
+
+      Box.list[t1].marked = true
+      Box.list[t2].marked = true
+
+      Box.list[t1]:changeImage(emotion)
+      Box.list[t2]:changeImage(emotion)
+
+      if(emotion ~= nil) then
+        print(t1 .. ", " .. t2 .. " " .. emotion)
+      end
+    end
+
     gameStarted = true;
   end
 end
