@@ -137,7 +137,14 @@ function Box:draw()
   if self.active then
     if self.showImage then
       love.graphics.setColor(255,255,255,255)
-      love.graphics.draw(self.image,x,y)
+      --love.graphics.draw(self.image,x,y)
+      xScale = self.width / self.image:getWidth()
+      yScale = self.height / self.image:getHeight()
+
+      love.graphics.push()
+      love.graphics.scale(xScale,yScale)
+      love.graphics.draw(self.image,x/xScale,y/yScale)
+      love.graphics.pop()
     else
       -- display the box, displays differently if box is being hovered over
       if self.hover and self.animTick == 1 then
