@@ -62,8 +62,8 @@ end
 -- assigns name and image
 function Box:changeImage(str)
   self.name = str;
-  self.image = love.graphics.newImage("images/"..self.name.."/1.png")
-              -- TODO: instead of /1.png, this should pull a random image from the folder
+  local imgs = love.filesystem.getDirectoryItems("images/"..self.name)
+  self.image = love.graphics.newImage("images/"..self.name.."/".. imgs[math.random(#imgs)])
 end
 
 -- translates the x and y to the actual pixel position in the window
@@ -122,12 +122,12 @@ function Box:draw()
 
   -- animTick slowly rises to 1 exponentially
   -- creates a nice easing curve for animation
-  if self.animTick < 1 then
+  if self.animTick > 0 then
     if self.animTrigger then
-      self.animTick = self.animTick * 1.05
+      self.animTick = self.animTick - 1
     end
   else
-    self.animTick = 1
+    self.animTick = 0
   end
 
   -- sets brush to self.color
@@ -139,24 +139,23 @@ function Box:draw()
     if self.showImage then
       love.graphics.setColor(255,255,255,255)
       --love.graphics.draw(self.image,x,y)
-      xScale = self.width / self.image:getWidth()
-      yScale = self.height / self.image:getHeight()
-
-      love.graphics.push()
-      love.graphics.scale(xScale,yScale)
-      love.graphics.draw(self.image,x/xScale,y/yScale)
-      love.graphics.pop()
+      self:drawScaledImage()
     else
-      -- display the box, displays differently if box is being hovered over
-      if self.hover and self.animTick == 1 then
-        love.graphics.setColor(15,160,15,255)
-        love.graphics.rectangle('fill',x,y,self.width,self.height)
-        love.graphics.setColor(255,255,255,255)
-        love.graphics.rectangle('line',x,y,self.width,self.height)
+      if self.animTick ~= 0 then
+        love.graphics.setColor(100,100,100,255)
+        self:drawScaledImage()
       else
-        love.graphics.rectangle('fill',x*self.animTick,y*self.animTick,self.width,self.height)
-        love.graphics.setColor(15,15,255,255)
-        love.graphics.rectangle('line',x*self.animTick,y*self.animTick,self.width,self.height)
+        -- display the box, displays differently if box is being hovered over
+        if self.hover then
+          love.graphics.setColor(15,160,15,255)
+          love.graphics.rectangle('fill',x,y,self.width,self.height)
+          love.graphics.setColor(255,255,255,255)
+          love.graphics.rectangle('line',x,y,self.width,self.height)
+        else
+          love.graphics.rectangle('fill',x,y,self.width,self.height)
+          love.graphics.setColor(15,15,255,255)
+          love.graphics.rectangle('line',x,y,self.width,self.height)
+        end
       end
     end
   end
@@ -164,4 +163,16 @@ function Box:draw()
   -- give the brush its old color back
   -- technically not needed, but good convention
   love.graphics.setColor(r,g,b,a)
+end
+
+function Box:drawScaledImage()
+  local x,y = self:realPosition()
+
+  xScale = self.width / self.image:getWidth()
+  yScale = self.height / self.image:getHeight()
+
+  love.graphics.push()
+  love.graphics.scale(xScale,yScale)
+  love.graphics.draw(self.image,x/xScale,y/yScale)
+  love.graphics.pop()
 end

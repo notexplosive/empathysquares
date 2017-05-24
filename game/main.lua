@@ -1,7 +1,9 @@
 require "box"
 require "cursor"
+require "poptext"
 
 local emotionNames = love.filesystem.getDirectoryItems("images")
+--[[
 print("DETECTED FOLDERS:")
 for i=1,#emotionNames do
   local subImages = love.filesystem.getDirectoryItems("images/"..emotionNames[i])
@@ -9,15 +11,23 @@ for i=1,#emotionNames do
   print(unpack(subImages))
 end
 print()
+]]
+
+local littleFont = love.graphics.newFont(32)
+local bigFont    = love.graphics.newFont(120)
+love.graphics.setFont(littleFont)
 
 -- happy, sad, tired, angy, sick, surprised, confused
 
 local haltInputTimer = 0;
 local evaluateFlag = false;
-local popText = ""
+--local popText = ""
 local gameStarted = false;
+local startGameTimer = 0
 
 function startGame()
+  startGameTimer = 60 * 3
+
   -- destroy all boxes, assuming we've already started the game once this run.
   for i=0,#Box.list do
     if Box.list[i] ~= nil then
@@ -34,7 +44,7 @@ function startGame()
         b.color[1] = 40*x + 40
         b.color[2] = 25*y + 40
         b.color[3] = (x+y)*10
-        b.animTick = 1 - (x+y)*.15
+        b.animTick = (x+y)*10+startGameTimer  -- old starting val: 1 - (x+y)*.15
       end
     end
 
@@ -71,19 +81,31 @@ end
 
 function love.draw()
   if not gameStarted then
-
+    love.graphics.setFont(littleFont)
     love.graphics.print("press space to begin",350,200)
   end
   for i = 1,#Box.list do
     Box.list[i]:draw()
   end
 
-  love.graphics.print(popText,200,200)
+  PopText.draw()
 end
 
 function love.update()
   -- see cursor.lua
   cursorUpdate()
+  PopText.update()
+
+  if startGameTimer > 0 then
+    love.graphics.setFont(bigFont)
+    PopText.set(math.ceil(startGameTimer / 60))
+    startGameTimer = startGameTimer - 1
+    haltInputTimer = 10
+
+    if startGameTimer == 0 then
+      PopText.set("GO!")
+    end
+  end
 
   -- if clicking is disabled, tick down a timer to re-enable it
   if haltInputTimer > 0 then
@@ -140,7 +162,7 @@ function love.update()
           if img1.name == img2.name then
             img1:destroy()
             img2:destroy()
-            popText = img1.name;
+            PopText.set(img1.name);
           else
             img1.showImage = false;
             img2.showImage = false;
