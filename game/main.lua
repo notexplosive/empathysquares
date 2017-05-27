@@ -2,6 +2,14 @@ require "box"
 require "cursor"
 require "poptext"
 
+local scoreTable = {}
+scoreTable["angry"] = 0;
+scoreTable["confused"] = 0;
+scoreTable["happy"] = 0;
+scoreTable["sad"] = 0;
+scoreTable["sick"] = 0;
+scoreTable["surprised"] = 0;
+scoreTable["tired"] = 0;
 local emotionNames = love.filesystem.getDirectoryItems("images")
 --[[
 print("DETECTED FOLDERS:")
@@ -157,15 +165,31 @@ function love.update()
           local img1 = currentlyVisibleImages[1]
           local img2 = currentlyVisibleImages[2]
 
+
           -- if they share the same name (aka: came from the same folder)
           -- then we have a match!
           if img1.name == img2.name then
+            scoreTable[img1.name] = scoreTable[img1.name] + 100;
             img1:destroy()
             img2:destroy()
             PopText.set(img1.name);
+            -- correct
           else
+            -- incorrect
             img1.showImage = false;
             img2.showImage = false;
+            if (scoreTable[img1.name] - 50  < 0) then
+              scoreTable[img1.name] = 0;
+            else
+              scoreTable[img1.name] = scoreTable[img1.name] - 50;
+            end
+            if (scoreTable[img2.name] - 50  < 0) then
+              scoreTable[img1.name] = 0;
+            else
+              scoreTable[img2.name] = scoreTable[img2.name] - 50;
+            end
+
+
           end
 
           currentlyVisibleImages = {}
